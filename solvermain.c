@@ -19,15 +19,20 @@
 #include "fichier.h"
 #include "pile.h"
 #include "jeu.h"
-#define TAILLE_PILE 400
+#define TAILLE_PILE 100
 
 void main(){
    char path[PATH_LENGTH];
    int sudoku[TAILLE_SUDO][TAILLE_SUDO];
-   int i,j,k,res;
+   int i,res;
+   int trouve = FAUX;
+   int lig=0;
+   int col=0;
+   int valeur = 1;
    int erreur = FAUX;
 
-   typeDonnee possibilite;
+
+   typeDonnee pos;
    typePile *pile;
    pile = initpile(TAILLE_PILE);
 
@@ -48,77 +53,53 @@ void main(){
 
    afficherSudo(sudoku);
 
-   int val,posH,posV,trouve;
-
-   // Parcours du sudoku
-   for (i = 0;i<TAILLE_SUDO && !erreur;i++) {
-      for (j=0;j<TAILLE_SUDO && !erreur;j++) {
-
-         // Si l'on trouve un zéro
-         if (sudoku[i][j] == 0) {
-            trouve = 0;
-
-            // On essaie tous les nombres et on vérifie si c'est une
-            // solution possible
-            for (k=1;k<10;k++) {
-               // Si oui, on empile cette/ces  possibilité/s
-               if ( checkNombre(k,i,j,sudoku)) {
-                  trouve = 1;
-                  possibilite.ligne = i;
-                  possibilite.colonne = j;
-                  possibilite.valeur = k;
-                  possibilite.essai = 0;
-                  if (!pilepleine(pile)) {
-                     empiler(pile, possibilite);
-                  } else {
-                     printf("Pile pleine!!\n");
-                     erreur = VRAI;
-                  }
+   // Parcours de la grille à la recherche des 0
+   while (lig<TAILLE_SUDO && !erreur)
+   {
+       col=0;
+       while (col<TAILLE_SUDO && !erreur)
+       {
+           if (sudoku[lig][col] == 0) //On regarde si la valeur testée = 0
+           {
+               trouve = FAUX; //On initialise trouve à faux avant chaque recherche de la valeur possible
+               while (valeur <= TAILLE_SUDO && !trouve)
+               {
+                   if (checkNombre(valeur,lig,col,sudoku)) //On lance la procédure de test des possibilité
+                   {
+                       /* Si un nombre est possible on l'empile et on passe trouve à vrai et on passe à la case 0 suivante */
+                       pos.lig = lig;
+                       pos.col = col;
+                       pos.valeur = valeur;
+                       sudoku[lig][col] = valeur;
+                       valeur = 0;
+                       empiler(pile,pos);
+                       trouve = VRAI;
+                   }
+                   valeur++;
                }
-            }
+               if(!trouve) //Si on a pas trouvé de valeur possible
+               {
+                   if(pilevide(pile)) //On vérifie que la pile n'est pas vide
+                   {
+                       printf("Résolution impossible\n");
+                       erreur = VRAI;
+                   }
+                   else     //Si elle n'est pas vide
+                   {
+                       pos=depiler(pile);           //On dépile
+                       sudoku[pos.lig][pos.col]=0;  //Réattribue un 0 à la case dépilée
+                       lig=pos.lig;                 //On se repositionne une case avant
+                       col=pos.col-1;
+                       valeur=pos.valeur+1;         //On incrémente la valeur trouvée précédemment
 
-            // Si au moins une solution a été trouvée, on dépile la dernière
-            // on l'insère dans le sudoku et on indique dans la pile
-            // qu'elle est utilisée
-            if (trouve == 1 && !erreur) {
-               possibilite = depiler(pile);
-               possibilite.essai = 1;
-               empiler(pile,possibilite);
-               sudoku[possibilite.ligne][possibilite.colonne] = possibilite.valeur;
-               afficherSudo(sudoku);
-            }
-            
-            // Sinon, on dépile toutes les possibilités essayées jusqu'à une
-            // possibilité non essayée, on l'utilise et indique qu'elle
-            // est utilisée à son tour. On replace également un zéro dans
-            // les cases pour un retour en arrière
-            else {
-               if (!pilevide(pile)) {
-                  possibilite = depiler(pile);
-                  afficherSudo(sudoku);
-                  while (possibilite.essai == 1 && !erreur) {
-                     sudoku[possibilite.ligne][possibilite.colonne] = 0;
-                     if (!pilevide(pile)) {
-                        possibilite = depiler(pile);
-                        afficherSudo(sudoku);
-                     } else {
-                        printf("Pas de solution possible!\n");
-                        erreur = VRAI;
-                     }
-                  }
-                  possibilite.essai = 1;
-                  empiler(pile,possibilite);
-                  sudoku[possibilite.ligne][possibilite.colonne] = possibilite.valeur;
-                  i = possibilite.ligne - 1;
-                  j = possibilite.colonne - 1;
-               } else {
-                  printf("Pas de solution possible!\n");
-                  erreur = VRAI;
+                   }
                }
-            }
-         }
-      }
+           }
+           col++; //On passe à la colonne suivante
+       }
+       lig++; //On passe à la ligne suivante
    }
+
    // Si le sudoku est résolu
    if (!erreur) {
       printf("Le sudoku est resolu: \n");

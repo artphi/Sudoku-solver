@@ -15,10 +15,9 @@
  */
 
 typedef struct {
-    int ligne;
-    int colonne;
+    int lig;
+    int col;
     int valeur;
-    int essai;
 } typeDonnee;
 
 /* Définition d'un objet descripteur de pile */
