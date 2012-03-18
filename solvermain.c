@@ -35,7 +35,7 @@ void main(){
    typeDonnee pos;
    typePile *pile;
    pile = initpile(TAILLE_PILE);
-
+    //Lecture du chemin pour charger le sudoku
    lirePath(path);
    res = lireTableau2Dim(path, sudoku);
    while (res != 0) {
@@ -50,7 +50,7 @@ void main(){
       lirePath(path);
       res = lireTableau2Dim(path, sudoku);
    }
-
+   // On affiche le sudoku en début de partie
    afficherSudo(sudoku);
 
    // Parcours de la grille à la recherche des 0
