@@ -30,7 +30,6 @@ int lireTableau2Dim(char nomFichier[PATH_LENGTH],
 
    /* Si le fichier n'a pas pu être ouvert, on met resultat à 1 */
    if (fichier == NULL ) {
-        printf("Impossible d'ouvrir le fichier %s\n",nomFichier);
         resultat = 1;
 
    } else {      // Sinon, on parcours le fichier et enregistre
